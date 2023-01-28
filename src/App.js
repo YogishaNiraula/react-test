@@ -1,22 +1,50 @@
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { useReducer } from "react";
+
+const colors = ["red", "green", "blue", "black", "orange"];
+
+function getRandomColorState() {
+  const totalColors = colors.length;
+  return colors[Math.floor(Math.random() * totalColors)];
+}
+
+function colorStateReducer(state) {
+  const isPreviousColorBlue = state.currentColor === "blue";
+  const nextColor = isPreviousColorBlue ? "green" : getRandomColorState();
+  return {
+    currentColor: nextColor,
+    stack: [...state.stack, nextColor],
+  };
+}
 
 function App() {
+  const [state, changeColor] = useReducer(colorStateReducer, {
+    currentColor: "black",
+    stack: ["black"],
+  });
+
   return (
     <div className="App">
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+        <button
+          style={{
+            backgroundColor: state.currentColor,
+            borderColor: state.currentColor,
+          }}
+          onClick={changeColor}
         >
-          Learn React
-        </a>
+          Change Color
+        </button>
+        <h2>Color Entries:</h2>
+        <ul className="colors-list">
+          {state.stack.map((entry, index) => {
+            return (
+              <li key={index} style={{ color: entry }}>
+                {entry}
+              </li>
+            );
+          })}
+        </ul>
       </header>
     </div>
   );
