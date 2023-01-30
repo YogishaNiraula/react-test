@@ -1,5 +1,5 @@
 import "./App.css";
-import { useReducer } from "react";
+import { createContext, useContext, useReducer } from "react";
 
 const colors = ["red", "green", "blue", "black", "orange"];
 
@@ -16,37 +16,54 @@ function colorStateReducer(state) {
     stack: [...state.stack, nextColor],
   };
 }
+const ColorContext = createContext(null);
 
-function App() {
+function ColorContextProvider({ children }) {
   const [state, changeColor] = useReducer(colorStateReducer, {
     currentColor: "black",
     stack: ["black"],
   });
-
   return (
-    <div className="App">
-      <header className="App-header">
-        <button
-          style={{
-            backgroundColor: state.currentColor,
-            borderColor: state.currentColor,
-          }}
-          onClick={changeColor}
-        >
-          Change Color
-        </button>
-        <h2>Color Entries:</h2>
-        <ul className="colors-list">
-          {state.stack.map((entry, index) => {
-            return (
-              <li key={index} style={{ color: entry }}>
-                {entry}
-              </li>
-            );
-          })}
-        </ul>
-      </header>
-    </div>
+    <ColorContext.Provider value={{ state, changeColor }}>
+      {children}
+    </ColorContext.Provider>
+  );
+}
+
+function ColorStack() {
+  const { state, changeColor } = useContext(ColorContext);
+  return (
+    <header className="App-header">
+      <button
+        style={{
+          backgroundColor: state.currentColor,
+          borderColor: state.currentColor,
+        }}
+        onClick={changeColor}
+      >
+        Change Color
+      </button>
+      <h2>Color Entries:</h2>
+      <ul className="colors-list">
+        {state.stack.map((entry, index) => {
+          return (
+            <li key={index} style={{ color: entry }}>
+              {entry}
+            </li>
+          );
+        })}
+      </ul>
+    </header>
+  );
+}
+
+function App() {
+  return (
+    <main className="App">
+      <ColorContextProvider>
+        <ColorStack />
+      </ColorContextProvider>
+    </main>
   );
 }
 
